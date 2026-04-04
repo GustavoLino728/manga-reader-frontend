@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@mantine/core/styles.css';
+@import '@mantine/carousel/styles.css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Paleta de cores do projeto */
+/* Jet Black: #2b303a - Secondary */
+/* Frosted Blue: #92dce5 - Primary/Accent */
+/* Lavender Blush: #eee5e9 - Foreground light */
+/* Grey: #7c7c7c - Muted */
+/* Burnt Tangerine: #d64933 - Destructive/Hot */
+
+:root {
+  /* Light Mode */
+  --background: #f5f5f5;
+  --foreground: #1a1d23;
+  --card: #ffffff;
+  --card-foreground: #1a1d23;
+  --popover: #ffffff;
+  --popover-foreground: #1a1d23;
+  --primary: #92dce5;
+  --primary-foreground: #0d0f12;
+  --secondary: #2b303a;
+  --secondary-foreground: #eee5e9;
+  --muted: #e5e5e5;
+  --muted-foreground: #7c7c7c;
+  --accent: #92dce5;
+  --accent-foreground: #0d0f12;
+  --destructive: #d64933;
+  --destructive-foreground: #ffffff;
+  --border: #d4d4d4;
+  --input: #e5e5e5;
+  --ring: #92dce5;
+  --radius: 0.5rem;
+  
+  /* Custom colors */
+  --frosted-blue: #92dce5;
+  --jet-black: #2b303a;
+  --lavender-blush: #eee5e9;
+  --grey: #7c7c7c;
+  --burnt-tangerine: #d64933;
+  --surface: #ffffff;
+  --surface-elevated: #f8f8f8;
+}
+
+.dark {
+  /* Dark Mode - Principal */
+  --background: #0d0f12;
+  --foreground: #eee5e9;
+  --card: #161922;
+  --card-foreground: #eee5e9;
+  --popover: #161922;
+  --popover-foreground: #eee5e9;
+  --primary: #92dce5;
+  --primary-foreground: #0d0f12;
+  --secondary: #2b303a;
+  --secondary-foreground: #eee5e9;
+  --muted: #1e222a;
+  --muted-foreground: #7c7c7c;
+  --accent: #92dce5;
+  --accent-foreground: #0d0f12;
+  --destructive: #d64933;
+  --destructive-foreground: #ffffff;
+  --border: #2b303a;
+  --input: #1e222a;
+  --ring: #92dce5;
+  
+  /* Custom colors dark */
+  --surface: #161922;
+  --surface-elevated: #1e222a;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  /* Custom theme colors */
+  --color-frosted-blue: var(--frosted-blue);
+  --color-jet-black: var(--jet-black);
+  --color-lavender-blush: var(--lavender-blush);
+  --color-grey: var(--grey);
+  --color-burnt-tangerine: var(--burnt-tangerine);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Mantine overrides */
+[data-mantine-color-scheme="dark"] {
+  --mantine-color-body: var(--background);
+  --mantine-color-text: var(--foreground);
+}
+
+[data-mantine-color-scheme="light"] {
+  --mantine-color-body: var(--background);
+  --mantine-color-text: var(--foreground);
+}
+
+/* Ensure body background syncs with theme */
+html:not(.dark) body {
+  background-color: #f5f5f5;
+  color: #1a1d23;
+}
+
+html.dark body {
+  background-color: #0d0f12;
+  color: #eee5e9;
+}
