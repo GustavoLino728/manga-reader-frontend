@@ -48,8 +48,11 @@ class ApiClient {
     if (!this.refreshToken) return false;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh?token=${this.refreshToken}`, {
+      // Send refreshToken in request body as expected by Spring Boot backend
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: this.refreshToken }),
       });
 
       if (response.ok) {
@@ -111,17 +114,15 @@ class ApiClient {
 
     if (!response.ok) {
       const error: ApiError = {
-        message: 'Erro na requisição',
+        message: 'Request error',
         status: response.status,
       };
-
       try {
         const errorData = await response.json();
         error.message = errorData.message || error.message;
       } catch {
         // Use default error message
       }
-
       throw error;
     }
 
