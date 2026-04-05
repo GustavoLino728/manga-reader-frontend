@@ -4,14 +4,14 @@ import { persist } from 'zustand/middleware';
 export type ReadingMode = 'single' | 'double' | 'webtoon';
 export type ReadingDirection = 'ltr' | 'rtl';
 
-interface ReadingProgress {
+export interface ReadingProgress {
   mangaId: string;
   chapterId: string;
   page: number;
   timestamp: number;
 }
 
-interface Bookmark {
+export interface Bookmark {
   mangaId: string;
   mangaTitle: string;
   coverImage: string;
@@ -19,7 +19,7 @@ interface Bookmark {
   timestamp: number;
 }
 
-interface ReaderSettings {
+export interface ReaderSettings {
   mode: ReadingMode;
   direction: ReadingDirection;
   fitToWidth: boolean;
@@ -34,23 +34,23 @@ interface ReaderState {
   readingProgress: Record<string, ReadingProgress>;
   setReadingProgress: (mangaId: string, chapterId: string, page: number) => void;
   getReadingProgress: (mangaId: string) => ReadingProgress | undefined;
-  
+
   // Bookmarks
   bookmarks: Bookmark[];
   addBookmark: (bookmark: Omit<Bookmark, 'timestamp'>) => void;
   removeBookmark: (mangaId: string) => void;
   isBookmarked: (mangaId: string) => boolean;
-  
+
   // Reader settings
   settings: ReaderSettings;
   updateSettings: (settings: Partial<ReaderSettings>) => void;
-  
+
   // UI State
   isReaderOpen: boolean;
   setReaderOpen: (open: boolean) => void;
   currentMangaId: string | null;
   setCurrentMangaId: (id: string | null) => void;
-  
+
   // Search history
   searchHistory: string[];
   addSearchHistory: (query: string) => void;
@@ -89,8 +89,7 @@ export const useReaderStore = create<ReaderState>()(
         set((state) => ({
           bookmarks: state.bookmarks.filter((b) => b.mangaId !== mangaId),
         })),
-      isBookmarked: (mangaId) =>
-        get().bookmarks.some((b) => b.mangaId === mangaId),
+      isBookmarked: (mangaId) => get().bookmarks.some((b) => b.mangaId === mangaId),
 
       // Reader settings
       settings: {
@@ -103,9 +102,7 @@ export const useReaderStore = create<ReaderState>()(
         brightness: 100,
       },
       updateSettings: (newSettings) =>
-        set((state) => ({
-          settings: { ...state.settings, ...newSettings },
-        })),
+        set((state) => ({ settings: { ...state.settings, ...newSettings } })),
 
       // UI State
       isReaderOpen: false,
