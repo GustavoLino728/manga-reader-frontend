@@ -25,11 +25,13 @@ export const authService = {
   register: (data: RegisterRequest) =>
     apiClient.post<AuthResponse>('/auth/register', data),
 
-  refresh: (token: string) =>
-    apiClient.post<AuthResponse>('/auth/refresh', undefined, { token }),
+  // Send refreshToken in request body as expected by Spring Boot backend
+  refresh: (refreshToken: string) =>
+    apiClient.post<AuthResponse>('/auth/refresh', { refreshToken }),
 
-  logout: (token: string) =>
-    apiClient.post<void>('/auth/logout', undefined, { token }),
+  // Send refreshToken in request body as expected by Spring Boot backend
+  logout: (refreshToken: string) =>
+    apiClient.post<void>('/auth/logout', { refreshToken }),
 };
 
 // ==================== User Service ====================
@@ -43,7 +45,7 @@ export const userService = {
 // ==================== Manga Service ====================
 export const mangaService = {
   search: (q: string, options?: { lang?: string; limit?: number; offset?: number }) =>
-    apiClient.get<MangaSearchResponse>('/manga/search', {
+    apiClient.get<MangaSearchResponse>('/mangas/search', {
       q,
       lang: options?.lang || 'pt-br',
       limit: options?.limit || 20,
@@ -51,10 +53,10 @@ export const mangaService = {
     }),
 
   getById: (mangaId: string, lang?: string) =>
-    apiClient.get<MangaResponse>(`/manga/${mangaId}`, { lang: lang || 'pt-br' }),
+    apiClient.get<MangaResponse>(`/mangas/${mangaId}`, { lang: lang || 'pt-br' }),
 
   getChapters: (mangaId: string, options?: { lang?: string; limit?: number; offset?: number }) =>
-    apiClient.get<ChapterResponse[]>(`/manga/${mangaId}/chapters`, {
+    apiClient.get<ChapterResponse[]>(`/mangas/${mangaId}/chapters`, {
       lang: options?.lang || 'pt-br',
       limit: options?.limit || 100,
       offset: options?.offset || 0,
@@ -63,14 +65,12 @@ export const mangaService = {
 
 // ==================== Reader Service ====================
 export const readerService = {
-  getSession: (chapterId: string, quality?: 'data' | 'dataSaver') =>
-    apiClient.get<ReaderSessionResponse>(`/reader/${chapterId}`, {
-      quality: quality || 'data',
-    }),
+  getSession: (chapterId: string) =>
+    apiClient.get<ReaderSessionResponse>(`/reader/${chapterId}`),
 
-  getPageUrl: (chapterId: string, pageIndex: number, quality?: 'data' | 'dataSaver') => {
+  getPageUrl: (chapterId: string, pageIndex: number) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-    return `${baseUrl}/reader/${chapterId}/page/${pageIndex}?quality=${quality || 'data'}`;
+    return `${baseUrl}/reader/${chapterId}/page/${pageIndex}`;
   },
 };
 
