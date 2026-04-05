@@ -1,14 +1,32 @@
+'use client';
+
 import { FeaturedCarousel } from '@/components/featured-carousel';
 import { SectionHeader } from '@/components/section-header';
 import { MangaGrid } from '@/components/manga-grid';
 import { LatestUpdates } from '@/components/latest-updates';
-import {
-  featuredMangas,
-  trendingMangas,
-  latestUpdates,
-} from '@/lib/mock-data';
+import { useMangaSearch } from '@/lib/api/hooks';
 
 export default function HomePage() {
+  // Fetch trending/featured mangas from the real API
+  const { data: trendingData, isLoading: trendingLoading } = useMangaSearch('one piece', {
+    limit: 10,
+    enabled: true,
+  });
+
+  const { data: featuredData, isLoading: featuredLoading } = useMangaSearch('naruto', {
+    limit: 5,
+    enabled: true,
+  });
+
+  const { data: latestData, isLoading: latestLoading } = useMangaSearch('bleach', {
+    limit: 20,
+    enabled: true,
+  });
+
+  const trendingMangas = trendingData?.results ?? [];
+  const featuredMangas = featuredData?.results ?? [];
+  const latestUpdates = latestData?.results ?? [];
+
   return (
     <div className="min-h-screen">
       {/* Featured Carousel */}
