@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { authService, userService, mangaService, readerService, libraryService, progressService } from './services';
 import { apiClient } from './client';
+import { useAuthStore } from '@/store/auth-store';
 import type {
   LoginRequest,
   RegisterRequest,
@@ -16,11 +17,16 @@ import type {
 // ==================== Auth Hooks ====================
 export function useLogin() {
   const queryClient = useQueryClient();
+  const { login: storeLogin } = useAuthStore();
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Set tokens in HTTP client
       apiClient.setTokens(data.accessToken, data.refreshToken);
+      // Fetch the authenticated user and sync with auth store
+      const user = await userService.getMe();
+      storeLogin(data.accessToken, data.refreshToken, user);
       queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
     },
   });
@@ -28,11 +34,16 @@ export function useLogin() {
 
 export function useRegister() {
   const queryClient = useQueryClient();
+  const { login: storeLogin } = useAuthStore();
 
   return useMutation({
     mutationFn: (data: RegisterRequest) => authService.register(data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // Set tokens in HTTP client
       apiClient.setTokens(data.accessToken, data.refreshToken);
+      // Fetch the authenticated user and sync with auth store
+      const user = await userService.getMe();
+      storeLogin(data.accessToken, data.refreshToken, user);
       queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
     },
   });
@@ -40,6 +51,7 @@ export function useRegister() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
+  const { logout: storeLogout } = useAuthStore();
 
   return useMutation({
     mutationFn: () => {
@@ -50,6 +62,7 @@ export function useLogout() {
       return Promise.resolve();
     },
     onSettled: () => {
+      storeLogout();
       apiClient.clearTokens();
       queryClient.clear();
     },
@@ -68,7 +81,6 @@ export function useUser() {
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: UpdateUserRequest) => userService.updateMe(data),
     onSuccess: () => {
@@ -91,7 +103,7 @@ export function useMangaSearchInfinite(query: string, options?: { lang?: string;
   return useInfiniteQuery({
     queryKey: ['manga', 'search', 'infinite', query, options?.lang],
     queryFn: ({ pageParam = 0 }) =>
-      mangaService.search(query, { lang: options?.lang, limit: options?.limit || 20, offset: pageParam }),
+      mangaService.search(query, { lang: options?.lang, limit: options?.limit || 20, offset: pageParam as number }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       const nextOffset = lastPage.offset + lastPage.limit;
@@ -124,7 +136,7 @@ export function useMangaChaptersInfinite(mangaId: string, options?: { lang?: str
   return useInfiniteQuery({
     queryKey: ['manga', mangaId, 'chapters', 'infinite', options?.lang],
     queryFn: ({ pageParam = 0 }) =>
-      mangaService.getChapters(mangaId, { lang: options?.lang, limit: options?.limit || 100, offset: pageParam }),
+      mangaService.getChapters(mangaId, { lang: options?.lang, limit: options?.limit || 100, offset: pageParam as number }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.flatMap((p) => p).length;
@@ -136,10 +148,10 @@ export function useMangaChaptersInfinite(mangaId: string, options?: { lang?: str
 }
 
 // ==================== Reader Hooks ====================
-export function useReaderSession(chapterId: string, quality?: 'data' | 'dataSaver') {
+export function useReaderSession(chapterId: string) {
   return useQuery({
-    queryKey: ['reader', chapterId, quality],
-    queryFn: () => readerService.getSession(chapterId, quality),
+    queryKey: ['reader', chapterId],
+    queryFn: () => readerService.getSession(chapterId),
     enabled: !!chapterId,
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
@@ -157,7 +169,6 @@ export function useLibrary(status?: LibraryStatus) {
 
 export function useAddToLibrary() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: AddToLibraryRequest) => libraryService.addToLibrary(data),
     onSuccess: () => {
@@ -168,7 +179,6 @@ export function useAddToLibrary() {
 
 export function useUpdateLibraryStatus() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ mangaId, data }: { mangaId: string; data: UpdateLibraryStatusRequest }) =>
       libraryService.updateStatus(mangaId, data),
@@ -180,7 +190,6 @@ export function useUpdateLibraryStatus() {
 
 export function useRemoveFromLibrary() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (mangaId: string) => libraryService.removeFromLibrary(mangaId),
     onSuccess: () => {
@@ -201,7 +210,6 @@ export function useProgress(mangaId: string) {
 
 export function useSaveProgress() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ mangaId, data }: { mangaId: string; data: SaveProgressRequest }) =>
       progressService.saveProgress(mangaId, data),
