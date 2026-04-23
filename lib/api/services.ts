@@ -37,7 +37,6 @@ export const authService = {
 // ==================== User Service ====================
 export const userService = {
   getMe: () => apiClient.get<UserResponse>('/users/me'),
-
   updateMe: (data: UpdateUserRequest) =>
     apiClient.patch<UserResponse>('/users/me', data),
 };
@@ -45,7 +44,7 @@ export const userService = {
 // ==================== Manga Service ====================
 export const mangaService = {
   search: (q: string, options?: { lang?: string; limit?: number; offset?: number }) =>
-    apiClient.get<MangaSearchResponse>('/mangas/search', {
+    apiClient.get<MangaSearchResponse>('/manga/search', {
       q,
       lang: options?.lang || 'pt-br',
       limit: options?.limit || 20,
@@ -53,10 +52,10 @@ export const mangaService = {
     }),
 
   getById: (mangaId: string, lang?: string) =>
-    apiClient.get<MangaResponse>(`/mangas/${mangaId}`, { lang: lang || 'pt-br' }),
+    apiClient.get<MangaResponse>(`/manga/${mangaId}`, { lang: lang || 'pt-br' }),
 
   getChapters: (mangaId: string, options?: { lang?: string; limit?: number; offset?: number }) =>
-    apiClient.get<ChapterResponse[]>(`/mangas/${mangaId}/chapters`, {
+    apiClient.get<ChapterResponse[]>(`/manga/${mangaId}/chapters`, {
       lang: options?.lang || 'pt-br',
       limit: options?.limit || 100,
       offset: options?.offset || 0,
