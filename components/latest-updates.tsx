@@ -2,28 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Badge } from '@mantine/core';
-import { Lock, Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-
-interface Chapter {
-  id: string;
-  number: string;
-  title?: string;
-  isPremium?: boolean;
-  releasedAt: Date;
-}
-
-interface MangaUpdate {
-  id: string;
-  title: string;
-  coverImage: string;
-  chapters: Chapter[];
-}
+import type { MangaResponse } from '@/lib/api/types';
 
 interface LatestUpdatesProps {
-  updates: MangaUpdate[];
+  updates: MangaResponse[];
 }
 
 export function LatestUpdates({ updates }: LatestUpdatesProps) {
@@ -39,13 +21,17 @@ export function LatestUpdates({ updates }: LatestUpdatesProps) {
             href={`/manga/${manga.id}`}
             className="relative h-24 w-16 shrink-0 overflow-hidden rounded-md"
           >
-            <Image
-              src={manga.coverImage}
-              alt={manga.title}
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
+            {manga.coverUrl ? (
+              <Image
+                src={manga.coverUrl}
+                alt={manga.title}
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            ) : (
+              <div className="h-full w-full bg-muted rounded-md" />
+            )}
           </Link>
 
           {/* Info */}
@@ -56,38 +42,15 @@ export function LatestUpdates({ updates }: LatestUpdatesProps) {
             >
               {manga.title}
             </Link>
-
-            {/* Chapters */}
-            <div className="mt-2 space-y-1">
-              {manga.chapters.slice(0, 2).map((chapter) => (
-                <Link
-                  key={chapter.id}
-                  href={`/manga/${manga.id}/chapter/${chapter.id}`}
-                  className="flex items-center justify-between text-sm hover:text-primary transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground">
-                      Capitulo {chapter.number}
-                    </span>
-                    {chapter.isPremium && (
-                      <Lock size={12} className="text-burnt-tangerine" />
-                    )}
-                    {chapter.title && (
-                      <span className="text-muted-foreground">
-                        - {chapter.title}
-                      </span>
-                    )}
-                  </div>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock size={12} />
-                    {formatDistanceToNow(chapter.releasedAt, {
-                      addSuffix: false,
-                      locale: ptBR,
-                    })}
-                  </span>
-                </Link>
-              ))}
-            </div>
+            {manga.description && (
+              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                {manga.description}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {manga.status?.toLowerCase().replace('_', ' ')}
+              {manga.year ? ` • ${manga.year}` : ''}
+            </p>
           </div>
         </div>
       ))}
